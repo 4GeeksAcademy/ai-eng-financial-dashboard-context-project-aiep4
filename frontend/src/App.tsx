@@ -33,9 +33,7 @@ function App() {
         setMonthlyData(computeMonthlyData(movements));
       })
       .catch(() => {
-        setError(
-          "No se pudo cargar la informacion financiera. Revisa la API de backend.",
-        );
+        setError("Unable to load financial information. Please check the backend API.");
       })
       .finally(() => {
         setLoading(false);

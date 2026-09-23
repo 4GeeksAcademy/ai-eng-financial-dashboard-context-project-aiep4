@@ -45,6 +45,8 @@ docker compose up --build
 The frontend uses the Vite proxy for `/api` by default, so no extra environment variables are required in local development or Codespaces.
 If you need to target a different backend origin, copy `frontend/.env.example` to `.env` and set `VITE_API_BASE_URL`.
 
+> The backend data is generated in memory by `backend/app/routes.py` and is intended for demo use. It is not a persisted data source and should not be treated as production data.
+
 - Frontend: http://localhost:5173
 - Backend: http://localhost:8000
 - API documentation: http://localhost:8000/docs

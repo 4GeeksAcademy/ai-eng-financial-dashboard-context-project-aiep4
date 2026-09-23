@@ -28,6 +28,8 @@ URLs disponibles:
 
 El frontend usa el proxy de Vite para las rutas `/api`, que se redirigen al servicio `backend:8000`. No se necesitan variables de entorno adicionales para el desarrollo local o Codespaces.
 
+> La API del backend genera datos en memoria dentro de `backend/app/routes.py` y está pensada para demostración. No representa una base de datos persistente ni un origen de verdad de producción.
+
 ## Confirmar que los servicios están levantados
 
 Consulta el estado de los contenedores:
