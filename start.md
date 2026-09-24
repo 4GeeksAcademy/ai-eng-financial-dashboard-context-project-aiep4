@@ -129,6 +129,23 @@ curl -f http://localhost:5173/
 curl -f http://localhost:5173/api/metrics
 ```
 
+## Activar la regresión automática antes de commit
+
+El repositorio incluye un hook versionado que ejecuta las pruebas, lint, build y
+validaciones de archivos staged antes de cada commit. Actívalo una vez desde la
+raíz del repositorio:
+
+```bash
+git config core.hooksPath .githooks
+chmod +x .githooks/pre-commit scripts/pre-commit-regression.sh
+```
+
+La misma comprobación puede ejecutarse manualmente con:
+
+```bash
+./scripts/pre-commit-regression.sh
+```
+
 ## Detener los servicios
 
 ```bash

@@ -45,6 +45,26 @@ docker compose up --build
 The frontend uses the Vite proxy for `/api` by default, so no extra environment variables are required in local development or Codespaces.
 If you need to target a different backend origin, copy `frontend/.env.example` to `.env` and set `VITE_API_BASE_URL`.
 
+### Pre-commit regression
+
+The repository includes a versioned Git hook that runs the frontend and backend
+regression checks before every commit. Enable it once after cloning:
+
+```bash
+git config core.hooksPath .githooks
+chmod +x .githooks/pre-commit scripts/pre-commit-regression.sh
+```
+
+To run the same checklist manually without creating a commit:
+
+```bash
+./scripts/pre-commit-regression.sh
+```
+
+The hook runs Vitest, ESLint, the frontend build, backend tests (or the
+documented `compileall` fallback when pytest is unavailable), and checks staged
+files for accidental secrets or generated artifacts.
+
 > The backend data is generated in memory by `backend/app/routes.py` and is intended for demo use. It is not a persisted data source and should not be treated as production data.
 
 - Frontend: http://localhost:5173
