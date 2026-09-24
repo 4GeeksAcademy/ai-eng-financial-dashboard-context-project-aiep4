@@ -105,3 +105,53 @@ The following are the only priorities that can be reasonably derived from the re
 - ✅ Implemented: dashboard UI, KPI calculations, health and metrics routes, Docker-based local workflow
 - ⚠️ Partially implemented: API contract around demo data and some duplicated logic between frontend and backend
 - ❓ Not sufficiently verified: auth, persistence, any real business data source, end-to-end app tests
+
+## Decisión: agregar la skill de testing
+
+Se incorpora `.agents/skills/testing/SKILL.md` como guía operativa para las
+pruebas del frontend y la validación de regresiones.
+
+### Justificación
+
+En proyectos del sector financiero, la detección de riesgos y la validación de
+procesos son innegociables. Agregar una skill de testing actúa como una red de
+seguridad automatizada: asegura que las refactorizaciones de la IA no
+introduzcan regresiones en los datos críticos del dashboard antes de llegar a
+producción.
+
+La decisión está respaldada por el estado actual del repositorio:
+
+- El frontend calcula KPIs y agregaciones financieras en
+   `frontend/src/lib/financial-utils.ts`.
+- El backend expone filtros, resúmenes, comparaciones y alertas en
+   `backend/app/routes.py`.
+- Ya existen pruebas con Vitest y pytest que deben mantenerse como contratos de
+   comportamiento.
+- Todavía no existe una prueba end-to-end que valide el flujo completo entre
+   navegador, proxy de Vite y API FastAPI.
+
+### Alcance esperado
+
+- Ejecutar pruebas Vitest específicas, evitando suites globales innecesarias.
+- Preferir pruebas de comportamiento y contratos observables frente a detalles
+   internos de implementación.
+- Añadir una prueba de regresión para cada corrección funcional relevante.
+- Mantener tests de API para nuevos endpoints o filtros.
+- Tratar la cobertura frontend/backend y el smoke test de integración como
+   prioridades antes de considerar el dashboard listo para producción.
+
+## Skill obligatoria antes de commit
+
+Se agrega `.agents/skills/pre-commit-regression/SKILL.md` para ejecutar una
+regresión y un checklist de calidad antes de crear cualquier commit.
+
+La skill verifica el diff, pruebas frontend, lint, build, pruebas backend,
+compilación alternativa cuando pytest no está disponible, configuración Docker,
+contratos de API, accesibilidad, secretos y artefactos generados. El commit se
+considera listo únicamente cuando el informe termina con `Commit readiness:
+READY`; cualquier bloqueo debe quedar documentado antes de continuar.
+
+La regresión también está conectada a un hook Git versionado en `.githooks/`.
+El hook delega en `scripts/pre-commit-regression.sh`, de modo que el mismo
+checklist se ejecuta automáticamente antes de cada commit después de activar
+`git config core.hooksPath .githooks`.
