@@ -8,7 +8,7 @@ import type { BusinessType, Category, OperationType } from "./api-types";
 export type GroupBy = "day" | "week" | "month";
 
 /** Query parameters for GET /api/metrics/facets. */
-export interface FacetsParams {}
+export type FacetsParams = Record<string, never>;
 
 /** Query parameters for GET /api/metrics/alerts. */
 export interface AlertsParams {

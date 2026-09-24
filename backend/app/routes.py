@@ -5,7 +5,7 @@ from collections import defaultdict
 from datetime import date, timedelta
 from typing import Literal
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
 OperationType = Literal["income", "outcome"]
@@ -15,6 +15,7 @@ BusinessType = Literal["B2B", "B2C"]
 GroupBy = Literal["day", "week", "month"]
 
 OUTCOME_CATEGORIES = ["suppliers", "operational", "administrative", "others"]
+DEMO_REFERENCE_DATE = date(2025, 12, 31)
 
 router = APIRouter()
 
@@ -94,7 +95,9 @@ def _build_movement(month: int, income_probability: float, today: date) -> Finan
 def generate_mock_movements(seed: int | None = None) -> list[FinancialMovement]:
     if seed is not None:
         random.seed(seed)
-    today = date.today()
+    # Keep the demo dataset stable across days so labels, tests, and screenshots
+    # remain reproducible. This is intentionally not a persistence layer.
+    today = DEMO_REFERENCE_DATE
     movements: list[FinancialMovement] = []
     for month in range(1, 13):
         income_probability = random.uniform(0.45, 0.7)
@@ -109,6 +112,11 @@ def filter_movements_by_date(
     start_date: date | None,
     end_date: date | None,
 ) -> list[FinancialMovement]:
+    if start_date is not None and end_date is not None and start_date > end_date:
+        raise HTTPException(
+            status_code=422,
+            detail="start_date must be on or before end_date",
+        )
     if start_date is None and end_date is None:
         return movements
 
@@ -308,6 +316,11 @@ def get_metrics_comparison(
     end_date: date = Query(...),
     business_type: BusinessType | None = Query(default=None),
 ) -> MetricsComparison:
+    if start_date > end_date:
+        raise HTTPException(
+            status_code=422,
+            detail="start_date must be on or before end_date",
+        )
     movements = generate_mock_movements(seed=42)
     if business_type is not None:
         movements = [
