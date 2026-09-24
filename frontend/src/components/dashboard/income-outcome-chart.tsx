@@ -46,7 +46,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   )
 }
 
-export function IncomeOutcomeChart({ data, loading }: IncomeOutcomeChartProps) {
+function IncomeOutcomeChart({ data, loading }: IncomeOutcomeChartProps) {
   if (loading) {
     return (
       <Card className="border-border/60">
@@ -124,3 +124,5 @@ export function IncomeOutcomeChart({ data, loading }: IncomeOutcomeChartProps) {
     </Card>
   )
 }
+
+export default IncomeOutcomeChart

@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { KPIRow } from "@/components/dashboard/kpi-row";
-import { IncomeOutcomeChart } from "@/components/dashboard/income-outcome-chart";
-import { ProfitPercentChart } from "@/components/dashboard/profit-percent-chart";
 import {
   type FinancialMovement,
   type MetricsFacets,
@@ -12,6 +10,8 @@ import {
 import { computeKPIs, computeMonthlyData } from "@/lib/financial-utils";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+const IncomeOutcomeChart = lazy(() => import("@/components/dashboard/income-outcome-chart"));
+const ProfitPercentChart = lazy(() => import("@/components/dashboard/profit-percent-chart"));
 
 async function fetchFinancialData(signal: AbortSignal): Promise<{
   movements: FinancialMovement[];
@@ -38,6 +38,7 @@ function App() {
   const [facets, setFacets] = useState<MetricsFacets | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -57,11 +58,17 @@ function App() {
         );
       })
       .finally(() => {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       });
 
     return () => controller.abort();
-  }, []);
+  }, [reloadKey]);
+
+  const retry = () => {
+    setLoading(true);
+    setError(null);
+    setReloadKey((value) => value + 1);
+  };
 
   const period = facets
     ? `${facets.min_date.slice(0, 4)} – ${facets.max_date.slice(0, 4)}`
@@ -80,6 +87,13 @@ function App() {
               role="alert"
             >
               {error}
+              <button
+                type="button"
+                onClick={retry}
+                className="ml-3 rounded-md px-2 py-1 font-semibold underline underline-offset-2 hover:no-underline"
+              >
+                Retry
+              </button>
             </div>
           ) : null}
 
@@ -88,13 +102,22 @@ function App() {
             <KPIRow metrics={metrics} loading={loading} />
           </section>
 
-          <section
-            aria-label="Financial charts"
-            className="grid grid-cols-1 gap-4 xl:grid-cols-2"
+          <Suspense
+            fallback={
+              <section aria-label="Loading financial charts" className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                <div className="h-[360px] animate-pulse rounded-xl border border-border/60 bg-card" />
+                <div className="h-[360px] animate-pulse rounded-xl border border-border/60 bg-card" />
+              </section>
+            }
           >
-            <IncomeOutcomeChart data={monthlyData} loading={loading} />
-            <ProfitPercentChart data={monthlyData} loading={loading} />
-          </section>
+            <section
+              aria-label="Financial charts"
+              className="grid grid-cols-1 gap-4 xl:grid-cols-2"
+            >
+              <IncomeOutcomeChart data={monthlyData} loading={loading} />
+              <ProfitPercentChart data={monthlyData} loading={loading} />
+            </section>
+          </Suspense>
         </div>
       </div>
     </main>

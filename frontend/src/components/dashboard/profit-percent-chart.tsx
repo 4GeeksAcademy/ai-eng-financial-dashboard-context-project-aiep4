@@ -47,7 +47,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   )
 }
 
-export function ProfitPercentChart({ data, loading }: ProfitPercentChartProps) {
+function ProfitPercentChart({ data, loading }: ProfitPercentChartProps) {
   if (loading) {
     return (
       <Card className="border-border/60">
@@ -113,3 +113,5 @@ export function ProfitPercentChart({ data, loading }: ProfitPercentChartProps) {
     </Card>
   )
 }
+
+export default ProfitPercentChart
